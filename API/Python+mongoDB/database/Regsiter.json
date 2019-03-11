@@ -1,0 +1,6 @@
+{"_id":{"$oid":"5c5d6d1c7f65863dac6df4e3"},"name":null,"password":null,"email":null}
+{"_id":{"$oid":"5c5d6d477f65863dac6df4e4"},"name":"rohanjain","password":"1234","email":"rohan@gmail.com"}
+{"_id":{"$oid":"5c5d74467f658646215a7e84"},"name":"rohanjain","email":"rohan@gmail.com","password":{"$binary":"JDJiJDEyJEV0S0JPVm9iR3h4Y0VyU3JhTkcwQk9NWTNxQTFsLkMweVM2SGtkNjRFLzZXRFIzTExXWFFl","$type":"00"}}
+{"_id":{"$oid":"5c5d7b257f65864e2ea64009"},"name":"rohanjain","email":"rohan@gmail.com","password":"$pbkdf2-sha256$30000$krKWMoZwjvGeU8qZ8z5HSA$f9EN0cBvDKQulovS5jPIciT56PHO3w8.XGni4ZDGd/o"}
+{"_id":{"$oid":"5c5d7bd77f65864e5cb7fd4c"},"name":"rohanjain","email":"rohan@gmail.com","password":"$pbkdf2-sha256$30000$8L4XAiDE.J8TQigFwJiztg$m8f.JI9pIBv2JoyxpKaZkVuR1W2vmozRATPygdmjBAg"}
+{"_id":{"$oid":"5c5d80297f658653d46de4a8"},"name":"nisarg/","email":null,"password":"$pbkdf2-sha256$30000$6r03RihljDGm1FqrtZZSyg$8PevEzWeu.5FcdshkNjvIoEpOWdeTApMvl/MRKMrdcI"}
