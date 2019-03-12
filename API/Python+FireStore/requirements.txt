@@ -1,0 +1,6 @@
+Flask==0.12.2
+firebase_admin==2.16.0
+setuptools==39.0.1
+passlib==1.7.1
+cloudant==2.11.0
+protobuf==3.7.0

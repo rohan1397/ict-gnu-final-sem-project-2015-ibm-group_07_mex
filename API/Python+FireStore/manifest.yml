@@ -1,0 +1,5 @@
+---
+applications:
+ - name: mex1242523
+   random-route: true
+   memory: 128M
