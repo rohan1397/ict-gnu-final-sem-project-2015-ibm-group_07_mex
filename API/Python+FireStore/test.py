@@ -141,5 +141,15 @@ def get_filtered_claims(busniesstype):
     output=doc.to_dict()
   return jsonify({'result' : output})
 
+@app.route('/claim/<name>/<date>', methods=['GET'])
+def get_date_claim(name,date):
+  output="Not Found"
+  claim_ref = db.collection('claims')
+  docs = claim_ref.where('name','==',name and 'date', '==',date).get()
+  for doc in docs:
+    print(u'{} => {}'.format(doc.id, doc.to_dict()))
+    output=doc.to_dict()
+  return jsonify({'result' : output})
+
 if __name__ == '__main__':
     app.run(debug=True)
