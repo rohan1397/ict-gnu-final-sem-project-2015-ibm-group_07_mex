@@ -131,10 +131,10 @@ def update_claim(name,status):
   return jsonify(output)
 
 @app.route('/claim/<busniesstype>', methods=['GET'])
-def get_filtered_claims(businesstype):
+def get_filtered_claims(busniesstype):
   output="Not Found"
   claim_ref = db.collection('claims')
-  docs = claim_ref.where('busniesstype', '==',businesstype).get()
+  docs = claim_ref.where('busniesstype', '==',busniesstype).get()
   for doc in docs:
     print(u'{} => {}'.format(doc.id, doc.to_dict()))
     output=doc.to_dict()
