@@ -86,6 +86,7 @@ def get_one_claim(name):
   for doc in docs:
     print(u'{} => {}'.format(doc.id, doc.to_dict()))
     output=doc.to_dict()
+    del output['image']
   return jsonify({'result' : output})
 
 @app.route('/claim', methods=['POST'])
