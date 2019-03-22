@@ -145,7 +145,7 @@ def get_filtered_claims(busniesstype):
 def get_date_claim(name,date):
   output="Not Found"
   claim_ref = db.collection('claims')
-  docs = claim_ref.where('name','==',name and 'date', '==',date).get()
+  docs = claim_ref.where('name','==',name).where('date', '==', date).get()
   for doc in docs:
     print(u'{} => {}'.format(doc.id, doc.to_dict()))
     output=doc.to_dict()
