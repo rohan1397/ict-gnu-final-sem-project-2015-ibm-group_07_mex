@@ -21,6 +21,7 @@ pwd_context = CryptContext(
         pbkdf2_sha256__default_rounds=30000
 )
 # mongo = PyMongo(app)
+
 @app.route('/register', methods=['POST'])
 def resgiter_user():
   output="Not Found"
@@ -44,7 +45,7 @@ def resgiter_user():
     print(u'No such document!')
     output = False
   return jsonify(output)
-  #?name=kalpit&distance=300
+
 @app.route('/login/<email>/<password>',methods=['GET'])
 def login_user(email,password):
   output="Not Found"
@@ -86,6 +87,7 @@ def get_one_claim(name):
     print(u'{} => {}'.format(doc.id, doc.to_dict()))
     output=doc.to_dict()
   return jsonify({'result' : output})
+
 @app.route('/claim', methods=['POST'])
 def add_claim():
   import datetime as dt
@@ -110,7 +112,7 @@ def add_claim():
   except google.cloud.exceptions.NotFound:
     output = False
   return jsonify(output)
-  #?name=&distance=
+        
 @app.route('/claim/<name>/<status>', methods=['PUT'])
 def update_claim(name,status):
   import datetime as dt
@@ -127,7 +129,16 @@ def update_claim(name,status):
     })
     output=True
   return jsonify(output)
-  #?name=&distance=
+
+@app.route('/claim/<busniesstype>', methods=['GET'])
+def get_filtered_claims(businesstype):
+  output="Not Found"
+  claim_ref = db.collection('claims')
+  docs = claim_ref.where('busniesstype', '==',businesstype).get()
+  for doc in docs:
+    print(u'{} => {}'.format(doc.id, doc.to_dict()))
+    output=doc.to_dict()
+  return jsonify({'result' : output})
 
 if __name__ == '__main__':
     app.run(debug=True)
