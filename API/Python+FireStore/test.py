@@ -59,7 +59,7 @@ def resgiter_user():
         #print(u'No such document!')
         output = "No such document"
     return jsonify({'result' : output})
-    #?name=kalpit&distance=300
+  
 @app.route('/login/<email>/<password>',methods=['GET'])
 def login_user(email,password):
     output="Not Found"
@@ -80,6 +80,7 @@ def login_user(email,password):
     else:
         output="Document Not found"
     return jsonify({'result' : output})
+
 @app.route('/claim', methods=['GET'])
 def get_all_claim():
     print('get all called')
@@ -100,6 +101,7 @@ def get_all_claim():
     # print(dumps(result))
     return jsonify({'result' : result})
     #return make_response(dumps(result))
+    
 @app.route('/claim/<name>', methods=['GET'])
 def get_one_claim(name):
     print('name',name)
@@ -143,6 +145,7 @@ def add_claim():
         output = False
     return jsonify({"result":output})
     #?name=&distance=
+   
 @app.route('/claim/<name>/<claim_id>/<status>', methods=['PUT'])
 def update_claim(name,status,claim_id):
     import datetime as dt
@@ -182,6 +185,7 @@ def update_password(email,password):
             })
             output = True
     return jsonify({'result' : output})
+
 @app.route('/busniesstype/<busniesstype>', methods=['GET'])
 def get_filtered_claims(busniesstype):
     output="Not Found"
@@ -207,6 +211,7 @@ def get_claim(name,claim_id):
         result.append((output))
 
     return jsonify({'result' : result})
+
 @app.route('/delete',methods=['DELETE'])
 def clear_collection():
     print('value of claimid in delete method',claimIdCounter)
