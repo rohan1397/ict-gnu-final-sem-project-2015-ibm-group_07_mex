@@ -151,6 +151,7 @@ def update_claim(name,status,claim_id):
     import datetime as dt
     output=False
     claim_ref = db.collection('claims')
+    claim_id=int(claim_id)
     docs = claim_ref.where('name','==',name).where('claim_id', '==', claim_id).get()
     for doc in docs:
         print(u'{} => {}'.format(doc.id, doc.to_dict()))
