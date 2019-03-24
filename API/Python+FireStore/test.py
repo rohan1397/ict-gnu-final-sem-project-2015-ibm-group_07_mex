@@ -73,7 +73,8 @@ def login_user(email,password):
             print(u'{} => {}'.format(doc.id,doc_dict['password']))
             if pwd_context.verify(password, doc_dict['password']):
                 output['current_status'] = True
-                output['password']=output['password'].decode("utf-8")
+                 if type(output['password']) != str:
+                    output['password']=output['password'].decode("utf-8")
             else:
                 output="Password Does not match"
     else:
@@ -131,7 +132,7 @@ def add_claim():
         'description': description,
         'busniesstype': busniesstype,
         'date':dt.datetime.now(),
-        'status':'progess',
+        'status':u'progress',
         'status_update_date':dt.datetime.now(),
         'image':image
     })
@@ -142,17 +143,17 @@ def add_claim():
         output = False
     return jsonify({"result":output})
     #?name=&distance=
-@app.route('/claim/<name>/<status>', methods=['PUT'])
-def update_claim(name,status):
+@app.route('/claim/<name>/<claim_id>/<status>', methods=['PUT'])
+def update_claim(name,status,claim_id):
     import datetime as dt
     output=False
     claim_ref = db.collection('claims')
-    docs = claim_ref.where('name', '==', name).get()
+    docs = claim_ref.where('name','==',name).where('claim_id', '==', claim_id).get()
     for doc in docs:
         print(u'{} => {}'.format(doc.id, doc.to_dict()))
         # doc_id = doc.to_dict()
         doc_ref = db.collection('claims').document(doc.id)
-        x=doc_ref.update( {
+        x=doc_ref.update({
             'status': status,
             'status_update_date':dt.datetime.now()
         })
@@ -193,19 +194,19 @@ def get_filtered_claims(busniesstype):
         result.append(output)
     return jsonify({'result' : output})
 
-@app.route('/claim/<name>/<date>')
-def get_date_claim(name,date):
-    output="Not Found"
-    print('called')
+@app.route('/claim/<name>/<claim_id>', methods=['GET'])
+def get_claim(name,claim_id):
     claim_ref = db.collection('claims')
-    docs = claim_ref.where('name','==',name).where('date', '==', date).get()
+    docs = claim_ref.where('name','==',name).where('claim_id', '==', claim_id).get()
     result=[]
     for doc in docs:
         print(u'{} => {}'.format(doc.id, doc.to_dict()))
         output=doc.to_dict()
-        result.append(output)
-    return jsonify({'result':result})
+        if type(output['image']) != str:
+            output['image'] =output['image'].decode("utf-8")
+        result.append((output))
 
+    return jsonify({'result' : result})
 @app.route('/delete',methods=['DELETE'])
 def clear_collection():
     print('value of claimid in delete method',claimIdCounter)
