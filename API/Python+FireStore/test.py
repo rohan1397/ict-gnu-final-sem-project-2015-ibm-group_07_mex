@@ -13,7 +13,7 @@ from passlib.context import CryptContext
 cred = credentials.Certificate('mexibm-47994-firebase-adminsdk-39gkc-ab1f0a7cd4.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-
+claimIdCounter=0
 app = Flask(__name__, static_url_path='')
 port = int(os.getenv('PORT', 8000))
 #bcrypt = Bcrypt(app)
@@ -118,15 +118,18 @@ def get_one_claim(name):
 def add_claim():
     import datetime as dt
     output="Not Found"
+    global claimIdCounter
     name=request.values.get('name')
     description=request.values.get('description')
     busniesstype=request.values.get('busniesstype')
     image=request.values.get('image')
     claim = db.collection('claims').document()
+    claimIdCounter+= 1
     claim_id = claim.set({
+        'claim_id':claimIdCounter,
         'name': name,
         'description': description,
-        'busniessType': busniesstype,
+        'busniesstype': busniesstype,
         'date':dt.datetime.now(),
         'status':'progess',
         'status_update_date':dt.datetime.now(),
@@ -202,6 +205,26 @@ def get_date_claim(name,date):
         output=doc.to_dict()
         result.append(output)
     return jsonify({'result':result})
+
+@app.route('/delete',methods=['DELETE'])
+def clear_collection():
+    print('value of claimid in delete method',claimIdCounter)
+    delete_collection(db.collection('register'), 10)
+    delete_collection(db.collection('claims'), 10)
+    # claimIdCounter=0
+    return jsonify({'result':True})
+
+def delete_collection(coll_ref, batch_size):
+    docs = coll_ref.limit(10).get()
+    deleted = 0
+    global claimIdCounter
+    for doc in docs:
+        doc.reference.delete()
+        deleted = deleted + 1
+        claimIdCounter=0
+
+    if deleted >= batch_size:
+        return delete_collection(coll_ref, batch_size)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
