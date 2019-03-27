@@ -26,10 +26,7 @@ pwd_context = CryptContext(
 )
 # mongo = PyMongo(app)
 
-@app.route('/' , methods=['GET'])
-def index():
-    return 'Hello World'
-
+# mongo = PyMongo(app)
 @app.route('/register', methods=['POST'])
 def resgiter_user():
     output="Not Found"
@@ -39,9 +36,7 @@ def resgiter_user():
     employee_id = request.values.get('employee_id')
     password_hash = pwd_context.encrypt(password)
     role = request.values.get('role')
-    print(type(role))
-    if role == None:
-        print('heelo')
+    if role == None:\
         role = 'User'
     user = db.collection('register').document()
     id = user.set({
@@ -59,7 +54,7 @@ def resgiter_user():
         #print(u'No such document!')
         output = "No such document"
     return jsonify({'result' : output})
-  
+    #?name=kalpit&distance=300
 @app.route('/login/<email>/<password>',methods=['GET'])
 def login_user(email,password):
     output="Not Found"
@@ -70,51 +65,41 @@ def login_user(email,password):
         for doc in query:
             doc_dict=doc.to_dict()
             output=doc_dict
-            print(u'{} => {}'.format(doc.id,doc_dict['password']))
             if pwd_context.verify(password, doc_dict['password']):
                 output['current_status'] = True
-                 if type(output['password']) != str:
+                if type(output['password']) != str:
                     output['password']=output['password'].decode("utf-8")
             else:
                 output="Password Does not match"
     else:
         output="Document Not found"
     return jsonify({'result' : output})
-
 @app.route('/claim', methods=['GET'])
 def get_all_claim():
-    print('get all called')
     #claim = mongo.db.userclaim
     output=["Not Found"]
-    #print('hello')
     claim = db.collection('claims').get()
     i=0
     result=[]
     for doc in claim:
-        # print('inside for loop')
-        print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
         output = doc.to_dict()
-        # result.append(output)
-        # output['status'] =output['status'].decode("utf-8")
+        output.pop('image',None)
         result.append(output)
-        #print('output',type(result))
-    # print(dumps(result))
     return jsonify({'result' : result})
     #return make_response(dumps(result))
-    
 @app.route('/claim/<name>', methods=['GET'])
 def get_one_claim(name):
-    print('name',name)
     output="Not Found"
     claim_ref = db.collection('claims').where(u'name', u'==', name).get()
     # docs = claim_ref.where(u'name', '==','het' ).get()
     result=[]
     for doc in claim_ref:
-        print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
         output=doc.to_dict()
-        print(output)
+        output.pop('image')
         result.append(output)
-    print('result',result)
+    # print('result',result)
     return jsonify({'result' : result})
 
 @app.route('/claim', methods=['POST'])
@@ -124,15 +109,16 @@ def add_claim():
     global claimIdCounter
     name=request.values.get('name')
     description=request.values.get('description')
-    busniesstype=request.values.get('busniesstype')
+    busniessType=request.values.get('busniesstype')
     image=request.values.get('image')
     claim = db.collection('claims').document()
+
     claimIdCounter+= 1
     claim_id = claim.set({
         'claim_id':claimIdCounter,
         'name': name,
         'description': description,
-        'busniesstype': busniesstype,
+        'busniesstype': busniessType,
         'date':dt.datetime.now(),
         'status':u'progress',
         'status_update_date':dt.datetime.now(),
@@ -145,16 +131,14 @@ def add_claim():
         output = False
     return jsonify({"result":output})
     #?name=&distance=
-   
 @app.route('/claim/<name>/<claim_id>/<status>', methods=['PUT'])
 def update_claim(name,status,claim_id):
     import datetime as dt
     output=False
-    claim_ref = db.collection('claims')
     claim_id=int(claim_id)
+    claim_ref = db.collection('claims')
     docs = claim_ref.where('name','==',name).where('claim_id', '==', claim_id).get()
     for doc in docs:
-        print(u'{} => {}'.format(doc.id, doc.to_dict()))
         # doc_id = doc.to_dict()
         doc_ref = db.collection('claims').document(doc.id)
         x=doc_ref.update({
@@ -168,54 +152,46 @@ def update_claim(name,status,claim_id):
 @app.route('/forgetpassword/<email>/<password>', methods=['GET'])
 def update_password(email,password):
     output="Not Found"
-    print(email,password)
     password=password
     cities_ref = db.collection('register')
     query = cities_ref.where('email', '==', email).get()
     if(query):
-        print('in if')
         for doc in query:
-            print('in for')
-            doc_dict=doc.to_dict()
-            #output=doc_dict
             password_hash = pwd_context.encrypt(password)
-            #updatePassword(email,password)
             doc_ref = db.collection('register').document(doc.id)
             x = doc_ref.update({
                 'password': password_hash,
             })
             output = True
     return jsonify({'result' : output})
-
 @app.route('/busniesstype/<busniesstype>', methods=['GET'])
 def get_filtered_claims(busniesstype):
-    output="Not Found"
     claim_ref = db.collection('claims')
-    docs = claim_ref.where('busniesstype', '==',busniesstype).get()
     result=[]
+    docs = claim_ref.where('busniesstype', '==',busniesstype).get()
     for doc in docs:
-        print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
         output=doc.to_dict()
+        output.pop('image', None)
         result.append(output)
-    return jsonify({'result' : output})
+    return jsonify({'result' : result})
 
 @app.route('/claim/<name>/<claim_id>', methods=['GET'])
 def get_claim(name,claim_id):
     claim_ref = db.collection('claims')
+    claim_id=int(claim_id)
     docs = claim_ref.where('name','==',name).where('claim_id', '==', claim_id).get()
     result=[]
     for doc in docs:
-        print(u'{} => {}'.format(doc.id, doc.to_dict()))
+        # print(u'{} => {}'.format(doc.id, doc.to_dict()))
         output=doc.to_dict()
         if type(output['image']) != str:
-            output['image'] =output['image'].decode("utf-8")
+            output['image'] = output['image'].decode("utf-8")
         result.append((output))
 
     return jsonify({'result' : result})
-
 @app.route('/delete',methods=['DELETE'])
 def clear_collection():
-    print('value of claimid in delete method',claimIdCounter)
     delete_collection(db.collection('register'), 10)
     delete_collection(db.collection('claims'), 10)
     # claimIdCounter=0
@@ -232,6 +208,6 @@ def delete_collection(coll_ref, batch_size):
 
     if deleted >= batch_size:
         return delete_collection(coll_ref, batch_size)
-
+		
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port)
