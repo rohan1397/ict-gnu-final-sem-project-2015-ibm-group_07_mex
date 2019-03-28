@@ -25,36 +25,45 @@ pwd_context = CryptContext(
     pbkdf2_sha256__default_rounds=30000
 )
 # mongo = PyMongo(app)
-
-# mongo = PyMongo(app)
 @app.route('/register', methods=['POST'])
 def resgiter_user():
     output="Not Found"
     name = request.values.get('name')
     email = request.values.get('email')
-    password = request.values.get('password')
-    employee_id = request.values.get('employee_id')
-    password_hash = pwd_context.encrypt(password)
-    role = request.values.get('role')
-    if role == None:\
-        role = 'User'
-    user = db.collection('register').document()
-    id = user.set({
-        'name': name,
-        'email': email,
-        'password': password_hash,
-        'employee_id': employee_id,
-        'role': role
-    })
-    doc_ref = db.collection('register').document()
-    try:
-        doc = doc_ref.get()
-        output = True
-    except google.cloud.exceptions.NotFound:
-        #print(u'No such document!')
-        output = "No such document"
+    if(checkUser(email)):
+        output="Already registerd"
+    else:
+        password = request.values.get('password')
+        employee_id = request.values.get('employee_id')
+        password_hash = pwd_context.encrypt(password)
+        role = request.values.get('role')
+        if role == None:
+            role = 'User'
+        user = db.collection('register').document()
+        id = user.set({
+            'name': name,
+            'email': email,
+            'password': password_hash,
+            'employee_id': employee_id,
+            'role': role
+        })
+        doc_ref = db.collection('register').document()
+        try:
+            doc = doc_ref.get()
+            output = True
+        except google.cloud.exceptions.NotFound:
+            #print(u'No such document!')
+            output = "No such document"
     return jsonify({'result' : output})
     #?name=kalpit&distance=300
+def checkUser(email):
+    cities_ref = db.collection('register')
+    query = cities_ref.where('email', '==', email).get()
+    flag =False
+    if(query):
+        for doc in query:
+            flag=True
+    return flag
 @app.route('/login/<email>/<password>',methods=['GET'])
 def login_user(email,password):
     output="Not Found"
@@ -79,7 +88,6 @@ def get_all_claim():
     #claim = mongo.db.userclaim
     output=["Not Found"]
     claim = db.collection('claims').get()
-    i=0
     result=[]
     for doc in claim:
         # print(u'{} => {}'.format(doc.id, doc.to_dict()))
@@ -105,24 +113,31 @@ def get_one_claim(name):
 @app.route('/claim', methods=['POST'])
 def add_claim():
     import datetime as dt
+    import dateutil.tz as dz
+    local = dz.tzlocal()
+    now = dt.datetime.now()
+    utc = dz.tzutc()
+    now = now.replace(tzinfo=local)
+    utc_now = now.astimezone(utc)
     output="Not Found"
     global claimIdCounter
     name=request.values.get('name')
     description=request.values.get('description')
     busniessType=request.values.get('busniesstype')
     image=request.values.get('image')
+    email = request.values.get('email')
     claim = db.collection('claims').document()
-
     claimIdCounter+= 1
     claim_id = claim.set({
         'claim_id':claimIdCounter,
         'name': name,
         'description': description,
         'busniesstype': busniessType,
-        'date':dt.datetime.now(),
+        'date':utc_now,
         'status':u'progress',
-        'status_update_date':dt.datetime.now(),
-        'image':image
+        'status_update_date':utc_now,
+        'image':image,
+        'email':email
     })
     doc_ref = db.collection('claims').document()
     try:
@@ -134,6 +149,12 @@ def add_claim():
 @app.route('/claim/<name>/<claim_id>/<status>', methods=['PUT'])
 def update_claim(name,status,claim_id):
     import datetime as dt
+    import dateutil.tz as dz
+    local = dz.tzlocal()
+    now = dt.datetime.now()
+    utc = dz.tzutc()
+    now = now.replace(tzinfo=local)
+    utc_now = now.astimezone(utc)
     output=False
     claim_id=int(claim_id)
     claim_ref = db.collection('claims')
@@ -143,7 +164,7 @@ def update_claim(name,status,claim_id):
         doc_ref = db.collection('claims').document(doc.id)
         x=doc_ref.update({
             'status': status,
-            'status_update_date':dt.datetime.now()
+            'status_update_date':utc_now
         })
         output=True
     return jsonify({"result":output})
